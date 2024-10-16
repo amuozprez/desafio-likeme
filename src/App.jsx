@@ -12,26 +12,63 @@ function App() {
   const [posts, setPosts] = useState([]);
 
   const getPosts = async () => {
-    const { data: posts } = await axios.get(urlBaseServer + "/posts");
-    setPosts([...posts]);
+    try {
+      const response = await fetch(urlBaseServer + "/posts");
+      const posts = await response.json();
+      setPosts(posts);
+    } catch (error) {
+      console.error("Error al obtener los posts:", error);
+    }
   };
 
-  const agregarPost = async () => {
-    const post = { titulo, url: imgSrc, descripcion };
-    await axios.post(urlBaseServer + "/posts", post);
-    getPosts();
+  const agregarPost = async (e) => {
+    e.preventDefault();
+    
+    const post = {
+      titulo,
+      imgSrc,
+      descripcion,
+    };
+  
+    try {
+      const response = await fetch(urlBaseServer + "/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(post),
+      });
+  
+      if (response.ok) {
+        getPosts();
+      } else {
+        console.error("Error en la respuesta del servidor");
+      }
+    } catch (error) {
+      console.error("Error al agregar el post:", error);
+    }
   };
 
-  // este método se utilizará en el siguiente desafío
   const like = async (id) => {
-    await axios.put(urlBaseServer + `/posts/like/${id}`);
-    getPosts();
+    try {
+      await fetch(urlBaseServer + `/posts/like/${id}`, {
+        method: "PUT",
+      });
+      getPosts();
+    } catch (error) {
+      console.error("Error al dar like:", error);
+    }
   };
 
-  // este método se utilizará en el siguiente desafío
   const eliminarPost = async (id) => {
-    await axios.delete(urlBaseServer + `/posts/${id}`);
-    getPosts();
+    try {
+      await fetch(urlBaseServer + `/posts/${id}`, {
+        method: "DELETE",
+      });
+      getPosts();
+    } catch (error) {
+      console.error("Error al eliminar el post:", error);
+    }
   };
 
   useEffect(() => {
